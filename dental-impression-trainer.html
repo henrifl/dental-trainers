@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reading impressions and tooth numbers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#F2F7F8; --surface:#FFFFFF; --ink:#12303F; --muted:#54707F; --line:#D3E0E5;
+  --accent:#1B7F7C; --accent-ink:#FFFFFF; --rose:#C4445A; --good:#1E8A58;
+  --good-bg:#E3F4EB; --bad-bg:#FBE6EA;
+  --molar:#1B7F7C; --molar-ink:#FFFFFF;
+  --premolar:#7CC4BF; --premolar-ink:#0E2A33;
+  --canine:#E8AE3F; --canine-ink:#3A2600;
+  --incisor:#FFFFFF; --incisor-ink:#12303F; --incisor-line:#8FAAB6;
+  --tray:#A9CBDB; --mat:#F3D3C0; --lm:#E39CA8; --dent-line:rgba(18,48,63,.35);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1C24; --surface:#152A35; --ink:#E6F0F3; --muted:#92AEBB; --line:#27424E;
+    --accent:#3FB0AA; --accent-ink:#06211F; --rose:#F07A8E; --good:#5CCB98;
+    --good-bg:#153A2B; --bad-bg:#3E1E27;
+    --molar:#2E9C97; --molar-ink:#FFFFFF;
+    --premolar:#4A8C88; --premolar-ink:#FFFFFF;
+    --canine:#D99A2B; --canine-ink:#2A1A00;
+    --incisor:#DCE9ED; --incisor-ink:#0E2A33; --incisor-line:#6C8A97;
+    --tray:#4C7486; --mat:#8F6E61; --lm:#B5657A; --dent-line:rgba(230,240,243,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1C24; --surface:#152A35; --ink:#E6F0F3; --muted:#92AEBB; --line:#27424E;
+  --accent:#3FB0AA; --accent-ink:#06211F; --rose:#F07A8E; --good:#5CCB98;
+  --good-bg:#153A2B; --bad-bg:#3E1E27;
+  --molar:#2E9C97; --molar-ink:#FFFFFF;
+  --premolar:#4A8C88; --premolar-ink:#FFFFFF;
+  --canine:#D99A2B; --canine-ink:#2A1A00;
+  --incisor:#DCE9ED; --incisor-ink:#0E2A33; --incisor-line:#6C8A97;
+  --tray:#4C7486; --mat:#8F6E61; --lm:#B5657A; --dent-line:rgba(230,240,243,.35);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:'Figtree',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  font-size:16px; line-height:1.5;
+}
+h1,h2,h3{font-family:'Bricolage Grotesque','Figtree',system-ui,sans-serif; line-height:1.15; margin:0}
+header{max-width:640px; margin:0 auto; padding:20px 16px 8px}
+header h1{font-size:1.65rem; font-weight:700}
+header p{margin:6px 0 0; color:var(--muted)}
+.tabs{position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:var(--bg); border-bottom:1px solid var(--line)}
+.tabs-inner{max-width:640px; margin:0 auto; padding:8px 16px; display:flex; gap:6px}
+.tab{
+  flex:1; padding:10px 4px; border-radius:999px; border:1px solid var(--line);
+  background:var(--surface); color:var(--ink); font:inherit; font-size:.9rem; font-weight:600; cursor:pointer;
+}
+.tab[aria-selected="true"]{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+main{max-width:640px; margin:0 auto; padding:16px 16px 40px}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:16px}
+.card h2{font-size:1.25rem; margin-bottom:10px}
+.card h3{font-size:1.05rem; margin-bottom:6px}
+.hint{color:var(--muted); font-size:.95rem; margin:0 0 8px}
+.lbl{font-size:.85rem; font-weight:600; color:var(--muted); margin:12px 0 6px}
+.lbl:first-child{margin-top:0}
+.seg{display:flex; gap:6px; flex-wrap:wrap}
+.seg button{
+  flex:1; min-width:64px; padding:10px 8px; border-radius:12px; border:1.5px solid var(--line);
+  background:var(--surface); color:var(--ink); font:inherit; font-weight:600; cursor:pointer;
+}
+.seg button[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
+.checks{display:flex; gap:16px; flex-wrap:wrap; margin-top:12px}
+.checks label, .cl label{display:flex; align-items:center; gap:8px; font-size:.95rem; cursor:pointer}
+input[type="checkbox"]{width:20px; height:20px; accent-color:var(--accent)}
+svg{display:block; width:100%; height:auto}
+.stage{max-width:380px; margin:0 auto}
+.itooth{cursor:pointer; outline:none}
+.itooth ellipse{stroke:var(--dent-line); stroke-width:1}
+.itooth text{text-anchor:middle; font-weight:600; font-size:9.5px; pointer-events:none; font-family:'Figtree',system-ui,sans-serif}
+.c-molar ellipse{fill:var(--molar)} .c-molar text{fill:var(--molar-ink)}
+.c-premolar ellipse{fill:var(--premolar)} .c-premolar text{fill:var(--premolar-ink)}
+.c-canine ellipse{fill:var(--canine)} .c-canine text{fill:var(--canine-ink)}
+.c-incisor ellipse{fill:var(--incisor); stroke:var(--incisor-line); stroke-width:1.2} .c-incisor text{fill:var(--incisor-ink); font-size:8.5px}
+.itooth.sel ellipse{stroke:var(--ink); stroke-width:3}
+.itooth.hi ellipse{stroke:var(--rose); stroke-width:3.5}
+.itooth:focus-visible ellipse{stroke:var(--rose); stroke-width:3.5}
+.lmk{cursor:pointer; outline:none}
+.lmk:focus-visible{outline:2px solid var(--rose)}
+.lmtext{fill:var(--ink); opacity:.78; font-size:11px; font-weight:600; text-anchor:middle; cursor:pointer; font-family:'Figtree',system-ui,sans-serif}
+.svg-label{fill:var(--muted); font-size:10px; text-anchor:middle; font-family:'Figtree',system-ui,sans-serif}
+.caption{font-size:.95rem; margin:10px 0 0; padding:10px 12px; border-radius:12px; background:var(--bg); border:1px solid var(--line)}
+.detail{display:flex; gap:14px; align-items:flex-start}
+.detail .num{
+  min-width:64px; height:64px; padding:0 6px; border-radius:16px; background:var(--accent); color:var(--accent-ink);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Bricolage Grotesque','Figtree',sans-serif; font-weight:700; font-size:1.5rem;
+}
+.detail p{margin:4px 0 0}
+.chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px}
+.chip{font-size:.85rem; padding:3px 10px; border-radius:999px; background:var(--bg); border:1px solid var(--line)}
+ol.steps, ul.tight{margin:0; padding-left:1.2rem}
+ol.steps li, ul.tight li{margin:8px 0}
+table{width:100%; border-collapse:collapse; font-size:.95rem}
+td,th{text-align:left; padding:8px 6px; border-bottom:1px solid var(--line); vertical-align:top}
+th{font-weight:600; color:var(--muted)}
+dl{margin:0} dt{font-weight:600; margin-top:10px} dd{margin:2px 0 0; color:var(--muted)}
+.big{
+  font-family:'Bricolage Grotesque','Figtree',sans-serif; font-size:2.8rem; font-weight:700; line-height:1; color:var(--accent);
+}
+.cl label{padding:10px 0; border-bottom:1px solid var(--line)}
+.cl label:last-child{border-bottom:0}
+.qmeta{color:var(--muted); font-size:.9rem; margin-bottom:6px}
+.qtext{font-family:'Bricolage Grotesque','Figtree',sans-serif; font-size:1.25rem; font-weight:600; margin-bottom:14px}
+.opts{display:grid; gap:10px}
+.opt{
+  text-align:left; padding:14px; border-radius:12px; border:1.5px solid var(--line);
+  background:var(--surface); color:var(--ink); font:inherit; cursor:pointer; min-height:48px;
+}
+.opt:disabled{cursor:default}
+.opt.right{background:var(--good-bg); border-color:var(--good)}
+.opt.wrong{background:var(--bad-bg); border-color:var(--rose)}
+.feedback{margin-top:14px; padding:12px; border-radius:12px; background:var(--bg); border:1px solid var(--line)}
+.btn{
+  margin-top:14px; padding:13px 20px; border-radius:999px; border:0; background:var(--accent);
+  color:var(--accent-ink); font:inherit; font-weight:600; cursor:pointer;
+}
+.btn.ghost{background:transparent; color:var(--ink); border:1px solid var(--line); margin-left:8px}
+.bar{height:6px; background:var(--line); border-radius:99px; overflow:hidden; margin-bottom:14px}
+.bar > div{height:100%; background:var(--accent); transition:width .25s}
+.score{font-family:'Bricolage Grotesque','Figtree',sans-serif; font-size:2.6rem; font-weight:700}
+.missed{margin-top:12px; padding-left:1.1rem} .missed li{margin:8px 0}
+[hidden]{display:none !important}
+button:focus-visible,input:focus-visible{outline:3px solid var(--rose); outline-offset:2px}
+@media (prefers-reduced-motion: reduce){ .bar > div{transition:none} }
+</style>
+</head>
+<body>
+<header>
+  <h1>Reading impressions and tooth numbers</h1>
+  <p>Learn to tell upper from lower, find the midline, and count to the right tooth number.</p>
+</header>
+
+<div class="tabs">
+  <div class="tabs-inner" role="tablist" aria-label="Sections">
+    <button class="tab" role="tab" id="tab-read" aria-selected="true" aria-controls="panel-read">Read it</button>
+    <button class="tab" role="tab" id="tab-find" aria-selected="false" aria-controls="panel-find">Number finder</button>
+    <button class="tab" role="tab" id="tab-check" aria-selected="false" aria-controls="panel-check">Check</button>
+    <button class="tab" role="tab" id="tab-quiz" aria-selected="false" aria-controls="panel-quiz">Quiz</button>
+  </div>
+</div>
+
+<main>
+  <!-- READ IT -->
+  <section id="panel-read" role="tabpanel" aria-labelledby="tab-read">
+    <div class="card">
+      <h2>Explore an impression</h2>
+      <p class="hint">Tap the dents and landmarks. This is a simplified drawing, looking down into the impression.</p>
+      <div class="lbl">Which arch</div>
+      <div class="seg" id="r-arch">
+        <button data-v="upper" aria-pressed="true">Upper</button>
+        <button data-v="lower" aria-pressed="false">Lower</button>
+      </div>
+      <div class="lbl">How you are holding it</div>
+      <div class="seg" id="r-hold">
+        <button data-v="toward" aria-pressed="true">Handle toward me</button>
+        <button data-v="away" aria-pressed="false">Handle away from me</button>
+      </div>
+      <div class="checks">
+        <label><input type="checkbox" id="r-nums" checked> Show numbers</label>
+        <label><input type="checkbox" id="r-lm" checked> Show landmarks</label>
+      </div>
+      <div class="stage" id="r-stage" style="margin-top:12px"></div>
+      <div class="caption" id="r-cap"></div>
+    </div>
+
+    <div class="card" id="r-detail" aria-live="polite">
+      <p class="hint" style="margin:0">Tap a tooth dent or a landmark to learn what it is.</p>
+    </div>
+
+    <div class="card">
+      <h2>How to read one, step by step</h2>
+      <ol class="steps">
+        <li><strong>Remember it is a negative.</strong> Teeth stick out, so the impression has dents where they were. Cusp tips show up as low spots.</li>
+        <li><strong>Upper or lower?</strong> Use the clues in the table below.</li>
+        <li><strong>Find the handle and the midline.</strong> The handle sits at the front of the mouth, in line with the midline.</li>
+        <li><strong>Decide which side is the patient's right.</strong> Handle toward you means your left is the patient's right. Handle away from you means your left is the patient's left.</li>
+        <li><strong>Find the canine.</strong> It is the pointed, deep dent at the corner where the front turns into the side. It is your anchor.</li>
+        <li><strong>Count from the midline.</strong> Central, lateral, canine, two premolars, then up to three molars. Then use the Number finder tab to convert to the 1 to 32 number.</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2>Upper or lower? The fast clues</h2>
+      <table>
+        <tr><th></th><th>Upper</th><th>Lower</th></tr>
+        <tr><td>Middle of the tray</td><td>Filled, covering the roof of the mouth</td><td>Open space for the tongue</td></tr>
+        <tr><td>Back corners</td><td>Tuberosities, rounded bulges behind the last molars</td><td>Retromolar pads, soft pads behind the last molars</td></tr>
+        <tr><td>Front detail</td><td>Small bump (incisive papilla) behind the front teeth</td><td>Narrow front teeth, all about the same width</td></tr>
+        <tr><td>Front teeth size</td><td>Central incisors are the widest front teeth</td><td>Central incisors are the narrowest teeth</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- FINDER -->
+  <section id="panel-find" role="tabpanel" aria-labelledby="tab-find" hidden>
+    <div class="card">
+      <h2>Number finder</h2>
+      <p class="hint">Set up what you see in front of you and it gives the Universal tooth number.</p>
+      <div class="lbl">Which arch</div>
+      <div class="seg" id="f-arch">
+        <button data-v="upper" aria-pressed="true">Upper</button>
+        <button data-v="lower" aria-pressed="false">Lower</button>
+      </div>
+      <div class="lbl">Where the handle points</div>
+      <div class="seg" id="f-hold">
+        <button data-v="toward" aria-pressed="true">Toward me</button>
+        <button data-v="away" aria-pressed="false">Away from me</button>
+      </div>
+      <div class="lbl">Which side are you counting on (as you look at it)</div>
+      <div class="seg" id="f-side">
+        <button data-v="left" aria-pressed="true">My left</button>
+        <button data-v="right" aria-pressed="false">My right</button>
+      </div>
+      <div class="lbl">Tooth position counting from the midline</div>
+      <div class="seg" id="f-pos">
+        <button data-v="1" aria-pressed="true">1</button><button data-v="2" aria-pressed="false">2</button>
+        <button data-v="3" aria-pressed="false">3</button><button data-v="4" aria-pressed="false">4</button>
+        <button data-v="5" aria-pressed="false">5</button><button data-v="6" aria-pressed="false">6</button>
+        <button data-v="7" aria-pressed="false">7</button><button data-v="8" aria-pressed="false">8</button>
+      </div>
+    </div>
+
+    <div class="card" id="f-out" aria-live="polite"></div>
+
+    <div class="card">
+      <h2>What each position looks like</h2>
+      <table>
+        <tr><th>Count</th><th>Tooth</th><th>Look for</th></tr>
+        <tr><td>1</td><td>Central incisor</td><td>Flat, wide groove right at the midline</td></tr>
+        <tr><td>2</td><td>Lateral incisor</td><td>Smaller than the central, next to it</td></tr>
+        <tr><td>3</td><td>Canine</td><td>Deep, pointed dent at the corner of the arch</td></tr>
+        <tr><td>4 and 5</td><td>Premolars</td><td>Two small, squarish dents with one or two cusp pits</td></tr>
+        <tr><td>6</td><td>First molar</td><td>The biggest dent, several cusp pits</td></tr>
+        <tr><td>7</td><td>Second molar</td><td>Large, a little smaller than the first molar</td></tr>
+        <tr><td>8</td><td>Third molar (wisdom)</td><td>Often smaller or irregular. May be missing if removed or never developed</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- CHECK -->
+  <section id="panel-check" role="tabpanel" aria-labelledby="tab-check" hidden>
+    <div class="card">
+      <h2>Quick check before it goes out</h2>
+      <p class="hint">A front desk pass, not a clinical one. Follow your office and lab protocols, and the impression material's instructions.</p>
+      <div class="cl" id="cl"></div>
+      <button class="btn ghost" id="cl-reset" style="margin-left:0">Clear checks</button>
+    </div>
+    <div class="card">
+      <h2>Common problems</h2>
+      <dl>
+        <dt>Void or bubble</dt><dd>A hole or bump in the material. It matters most on or near a tooth the lab needs.</dd>
+        <dt>Drag or tear</dt><dd>Smeared or ripped material, often from moving the tray while it set.</dd>
+        <dt>Tray show-through</dt><dd>The metal or plastic shows through the material on a tooth. It usually means not enough material there.</dd>
+        <dt>Pulled away from the tray</dt><dd>The material has separated from the tray, which can distort the impression.</dd>
+        <dt>Missing back areas</dt><dd>The last molars or the tuberosity or retromolar pad are not captured.</dd>
+        <dt>Wrong or missing label</dt><dd>No patient name, date, or arch. This is the easiest one to catch and fix.</dd>
+      </dl>
+      <p class="hint" style="margin-top:12px">If something looks off, show it to the dentist or assistant before sending. Do not decide on your own to retake.</p>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="panel-quiz" role="tabpanel" aria-labelledby="tab-quiz" hidden>
+    <div class="card" id="quiz"></div>
+  </section>
+</main>
+
+<script>
+(function(){
+  /* ---------- Tooth data ---------- */
+  var TYPES = ["", "central incisor","lateral incisor","canine","first premolar","second premolar","first molar","second molar","third molar"];
+  var CLS = ["", "incisor","incisor","canine","premolar","premolar","molar","molar","molar"];
+  var LOOK = ["",
+    "Flat, wide groove at the midline. Upper centrals are the widest front teeth. Lower centrals are the narrowest teeth.",
+    "Smaller than the central, right next to it. Lower laterals are about the same size as lower centrals.",
+    "Deep, pointed dent at the corner of the arch. This is your anchor tooth.",
+    "Small, squarish dent with one or two cusp pits. Next to the canine.",
+    "Small, squarish dent with one or two cusp pits. Next to the first molar.",
+    "The biggest dent, with several cusp pits.",
+    "Large dent, a little smaller than the first molar.",
+    "Often smaller or irregular. May be missing if removed or never developed."
+  ];
+  function info(n){
+    var quad, p;
+    if(n<=8){ quad="upper right"; p=9-n; }
+    else if(n<=16){ quad="upper left"; p=n-8; }
+    else if(n<=24){ quad="lower left"; p=25-n; }
+    else { quad="lower right"; p=n-24; }
+    return {n:n, quad:quad, p:p, cls:CLS[p], name:quad+" "+TYPES[p], upper:n<=16};
+  }
+  var TEETH=[]; for(var i=1;i<=32;i++) TEETH[i]=info(i);
+  function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+  function rnd(n){ return Math.floor(Math.random()*n); }
+  function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=rnd(i+1); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+  function uniq(a){ return a.filter(function(v,i){ return a.indexOf(v)===i; }); }
+
+  /* patient side from how the impression is held */
+  function patientSide(toward, mySide){ return ((mySide==="left")===toward) ? "right" : "left"; }
+  function toothFor(arch, toward, mySide, p){
+    var ps = patientSide(toward, mySide);
+    if(arch==="upper") return ps==="right" ? 9-p : 8+p;
+    return ps==="left" ? 25-p : 24+p;
+  }
+
+  /* ---------- Impression drawing ---------- */
+  var CX=180, RX=110, RY=130, YE=70, NPTS=300;
+  var pts=[];
+  (function(){
+    var cum=0;
+    for(var k=0;k<=NPTS;k++){
+      var t=Math.PI*k/NPTS, x=CX-RX*Math.cos(t), y=YE+RY*Math.sin(t);
+      if(k>0){ var dx=x-pts[k-1].x, dy=y-pts[k-1].y; cum+=Math.sqrt(dx*dx+dy*dy); }
+      pts.push({x:x,y:y,c:cum});
+    }
+  })();
+  var L = pts[NPTS].c;
+  function ptAt(s){
+    if(s<0) s=0; if(s>L) s=L;
+    var lo=0, hi=NPTS;
+    while(hi-lo>1){ var m=(lo+hi)>>1; if(pts[m].c<=s) lo=m; else hi=m; }
+    var a=pts[lo], b=pts[hi], f=(s-a.c)/((b.c-a.c)||1);
+    return {x:a.x+(b.x-a.x)*f, y:a.y+(b.y-a.y)*f, ang:Math.atan2(b.y-a.y,b.x-a.x)*180/Math.PI};
+  }
+  var WU=[0,8.5,6.5,7.5,7,6.5,10,9,8.5], WL=[0,5.5,6,7,7,7,11,10.5,10];
+  var DU=[0,7,6.5,8,9,9,11,11,10.5],     DL=[0,6,6,7,7.5,8,10.5,10,9.5];
+  var layouts={};
+  function layoutFor(arch){
+    if(layouts[arch]) return layouts[arch];
+    var order=[], n;
+    if(arch==="upper"){ for(n=1;n<=16;n++) order.push(n); } else { for(n=32;n>=17;n--) order.push(n); }
+    var Wt = arch==="upper"?WU:WL, Dt = arch==="upper"?DU:DL, sum=0;
+    order.forEach(function(k){ sum+=Wt[TEETH[k].p]; });
+    var s=L*0.94/sum, cum=(L-sum*s)/2, out={};
+    order.forEach(function(k){
+      var p=TEETH[k].p, w=Wt[p]*s, pt=ptAt(cum+w/2);
+      out[k]={x:pt.x, y:pt.y, ang:pt.ang, rx:w/2*0.9, ry:Dt[p]*s/2*0.9};
+      cum+=w;
+    });
+    layouts[arch]=out; return out;
+  }
+  function impSVG(o){
+    var up=o.arch==="upper", lay=layoutFor(o.arch), rot=!!o.rot, d="", k;
+    for(k=0;k<=NPTS;k+=6) d+=(k?"L":"M")+pts[k].x.toFixed(1)+" "+pts[k].y.toFixed(1)+" ";
+    function tx(x,y,str,cls,extra){
+      return '<text x="'+x+'" y="'+y+'" class="'+cls+'" '+(extra||"")+(rot?' transform="rotate(180 '+x+' '+y+')"':'')+'>'+str+'</text>';
+    }
+    var s='<svg viewBox="0 0 360 340" role="img" aria-label="'+(up?"Upper":"Lower")+' impression, handle '+(rot?"away from":"toward")+' you">';
+    s+= rot ? '<g transform="rotate(180 180 170)">' : '<g>';
+    // handle and tray
+    s+='<g class="lmk" data-lm="handle" tabindex="0" role="button" aria-label="Handle"><rect x="166" y="236" width="28" height="80" rx="10" fill="var(--tray)"/></g>';
+    s+= tx(180,282,"handle","svg-label");
+    s+='<path d="'+d+'" fill="none" stroke="var(--tray)" stroke-width="92"/>';
+    if(up) s+='<path d="'+d+'Z" fill="var(--mat)" stroke="none"/>';
+    s+='<path d="'+d+'" fill="none" stroke="var(--mat)" stroke-width="78"/>';
+    // landmarks
+    if(o.lm){
+      if(up){
+        [CX-RX, CX+RX].forEach(function(x){
+          s+='<ellipse class="lmk" data-lm="tuber" tabindex="0" role="button" aria-label="Tuberosity" cx="'+x+'" cy="'+(YE-22)+'" rx="20" ry="14" fill="var(--lm)"/>';
+        });
+        s+='<line x1="180" y1="82" x2="180" y2="150" stroke="var(--lm)" stroke-width="1.5" stroke-dasharray="3 3"/>';
+        [132,120,108].forEach(function(y){
+          s+='<path d="M158 '+(y+3)+' Q168 '+(y-4)+' 179 '+y+'" fill="none" stroke="var(--lm)" stroke-width="1.6"/>';
+          s+='<path d="M202 '+(y+3)+' Q192 '+(y-4)+' 181 '+y+'" fill="none" stroke="var(--lm)" stroke-width="1.6"/>';
+        });
+        s+='<ellipse class="lmk" data-lm="papilla" tabindex="0" role="button" aria-label="Incisive papilla" cx="180" cy="158" rx="8" ry="6" fill="var(--lm)"/>';
+        s+= tx(180,98,"Palate","lmtext",'data-lm="palate"');
+      } else {
+        [CX-RX, CX+RX].forEach(function(x){
+          s+='<ellipse class="lmk" data-lm="rmp" tabindex="0" role="button" aria-label="Retromolar pad" cx="'+x+'" cy="'+(YE-22)+'" rx="16" ry="13" fill="var(--lm)"/>';
+        });
+        s+= tx(180,128,"Tongue space","lmtext",'data-lm="tongue"');
+      }
+      s+='<line x1="180" y1="168" x2="180" y2="242" stroke="var(--ink)" stroke-opacity=".45" stroke-width="1.5" stroke-dasharray="4 3"/>';
+      s+='<circle class="lmk" data-lm="midline" tabindex="0" role="button" aria-label="Midline" cx="180" cy="242" r="6" fill="var(--rose)"/>';
+    }
+    // teeth
+    for(var n=1;n<=32;n++){
+      if(TEETH[n].upper!==up) continue;
+      var t=TEETH[n], q=lay[n];
+      var cls="itooth c-"+t.cls+(o.hi===n?" hi":"")+(o.sel===n?" sel":"");
+      s+='<g class="'+cls+'" data-n="'+n+'" tabindex="0" role="button" aria-label="Tooth position, '+t.name+'">'+
+         '<ellipse cx="'+q.x.toFixed(1)+'" cy="'+q.y.toFixed(1)+'" rx="'+q.rx.toFixed(1)+'" ry="'+q.ry.toFixed(1)+'" transform="rotate('+q.ang.toFixed(1)+' '+q.x.toFixed(1)+' '+q.y.toFixed(1)+')"/>';
+      var label = o.nums ? String(n) : (o.hi===n ? "?" : "");
+      if(label) s+='<text x="'+q.x.toFixed(1)+'" y="'+q.y.toFixed(1)+'" dy=".35em"'+(rot?' transform="rotate(180 '+q.x.toFixed(1)+' '+q.y.toFixed(1)+')"':'')+'>'+label+'</text>';
+      s+='</g>';
+    }
+    s+= tx(60,312,"Patient's right","svg-label") + tx(300,312,"Patient's left","svg-label");
+    s+='</g></svg>';
+    return s;
+  }
+
+  /* ---------- Read tab ---------- */
+  var LMINFO = {
+    tuber:["Tuberosity","Upper back corners","Rounded bulges behind the last upper molars. If they are captured, the impression reaches far enough back."],
+    rmp:["Retromolar pad","Lower back corners","Soft pads of tissue behind the last lower molars. A good lower impression captures them."],
+    papilla:["Incisive papilla","Upper impressions only","A small bump just behind the upper central incisors. It sits on the midline, so it is a quick check."],
+    palate:["Palate","Upper impressions only","Upper impressions record the roof of the mouth. You may see a ridged pattern and a faint center line."],
+    tongue:["Tongue space","Lower impressions only","Lower impressions leave the middle open for the tongue. This open center is the fastest way to tell lower from upper."],
+    midline:["Midline","Between the two central incisors","The midline runs between 8 and 9 on the upper, and between 24 and 25 on the lower. A small notch often sits here."],
+    handle:["Handle","Front of the mouth","The handle points out the front, in line with the midline. It tells you which way you are looking."]
+  };
+  var R = {arch:"upper", hold:"toward", nums:true, lm:true, sel:null};
+  var stage = document.getElementById("r-stage"), capEl = document.getElementById("r-cap"), rdet = document.getElementById("r-detail");
+  function setSeg(id, val){
+    document.querySelectorAll("#"+id+" button").forEach(function(b){ b.setAttribute("aria-pressed", b.dataset.v===String(val) ? "true":"false"); });
+  }
+  function holdText(toward){
+    return toward ? "Handle toward you: your left is the patient's right, and your right is the patient's left."
+                  : "Handle away from you: your left is the patient's left, and your right is the patient's right.";
+  }
+  function drawRead(){
+    stage.innerHTML = impSVG({arch:R.arch, rot:R.hold==="away", nums:R.nums, lm:R.lm, sel:R.sel});
+    capEl.textContent = holdText(R.hold==="toward");
+  }
+  function showTooth(n){
+    R.sel = n; drawRead();
+    var t=TEETH[n];
+    rdet.innerHTML = '<div class="detail"><div class="num">#'+n+'</div><div><h3>'+cap(t.name)+'</h3><p>'+LOOK[t.p]+'</p>'+
+      '<div class="chips"><span class="chip">'+(t.upper?"Upper":"Lower")+' arch</span><span class="chip">Counts as position '+t.p+' from the midline</span></div></div></div>';
+  }
+  function showLm(k){
+    var li=LMINFO[k]; if(!li) return;
+    rdet.innerHTML = '<div class="detail"><div class="num" style="font-size:1.1rem">Tap</div><div><h3>'+li[0]+'</h3><p>'+li[2]+'</p><div class="chips"><span class="chip">'+li[1]+'</span></div></div></div>';
+  }
+  stage.addEventListener("click", function(e){
+    var g=e.target.closest(".itooth"); if(g){ showTooth(+g.dataset.n); return; }
+    var l=e.target.closest("[data-lm]"); if(l) showLm(l.dataset.lm);
+  });
+  stage.addEventListener("keydown", function(e){
+    if(e.key!=="Enter" && e.key!==" ") return;
+    var g=e.target.closest(".itooth"); if(g){ e.preventDefault(); showTooth(+g.dataset.n); return; }
+    var l=e.target.closest("[data-lm]"); if(l){ e.preventDefault(); showLm(l.dataset.lm); }
+  });
+  function segHandler(id, fn){
+    document.getElementById(id).addEventListener("click", function(e){
+      var b=e.target.closest("button"); if(!b) return;
+      setSeg(id, b.dataset.v); fn(b.dataset.v);
+    });
+  }
+  segHandler("r-arch", function(v){ R.arch=v; R.sel=null; rdet.innerHTML='<p class="hint" style="margin:0">Tap a tooth dent or a landmark to learn what it is.</p>'; drawRead(); });
+  segHandler("r-hold", function(v){ R.hold=v; drawRead(); });
+  document.getElementById("r-nums").addEventListener("change", function(e){ R.nums=e.target.checked; drawRead(); });
+  document.getElementById("r-lm").addEventListener("change", function(e){ R.lm=e.target.checked; drawRead(); });
+  drawRead();
+
+  /* ---------- Finder tab ---------- */
+  var F = {arch:"upper", hold:"toward", side:"left", pos:1};
+  var fout = document.getElementById("f-out");
+  function drawFind(){
+    var toward = F.hold==="toward", p=+F.pos;
+    var ps = patientSide(toward, F.side);
+    var n = toothFor(F.arch, toward, F.side, p);
+    var t = TEETH[n];
+    var steps = '<ul class="tight">'+
+      '<li>Handle '+(toward?"toward":"away from")+' you, so your '+F.side+' is the patient\'s <strong>'+ps+'</strong>.</li>'+
+      '<li>The '+F.arch+' '+ps+' quadrant is teeth '+(F.arch==="upper" ? (ps==="right"?"1 to 8":"9 to 16") : (ps==="right"?"25 to 32":"17 to 24"))+'.</li>'+
+      '<li>Position '+p+' from the midline is the '+TYPES[p]+'.</li></ul>';
+    fout.innerHTML = '<div class="detail"><div><div class="lbl" style="margin:0">Universal number</div><div class="big">#'+n+'</div></div>'+
+      '<div><h3>'+cap(t.name)+'</h3><p class="hint" style="margin:4px 0 0">'+LOOK[p]+'</p></div></div>'+
+      '<div style="margin-top:12px">'+steps+'</div>'+
+      '<div class="stage" style="margin-top:12px">'+impSVG({arch:F.arch, rot:!toward, nums:true, hi:n, lm:false})+'</div>';
+  }
+  ["arch","hold","side","pos"].forEach(function(k){
+    segHandler("f-"+k, function(v){ F[k]=v; drawFind(); });
+  });
+  drawFind();
+
+  /* ---------- Checklist ---------- */
+  var CHECKS = [
+    "Patient name, date, and arch (upper or lower) are on the bag or label",
+    "Every tooth is captured, all the way back to the last molar",
+    "The tuberosity (upper) or retromolar pad (lower) is captured at the back",
+    "No large voids, bubbles, or tears on or near the teeth",
+    "No tray showing through the material on a tooth",
+    "Material is still firmly attached to the tray",
+    "Bite registration is included if the order needs one",
+    "Impression is disinfected, stored, and sent the way your office and lab require"
+  ];
+  var cl = document.getElementById("cl");
+  cl.innerHTML = CHECKS.map(function(c,i){ return '<label><input type="checkbox" data-i="'+i+'"> <span>'+c+'</span></label>'; }).join("");
+  document.getElementById("cl-reset").addEventListener("click", function(){
+    cl.querySelectorAll("input").forEach(function(x){ x.checked=false; });
+  });
+
+  /* ---------- Quiz ---------- */
+  function distract(n, arch){
+    var mirror = arch==="upper" ? 17-n : 49-n;
+    var rest = uniq([33-n, 33-mirror, n-1, n+1]).filter(function(x){ return x>=1 && x<=32 && x!==n && x!==mirror; });
+    var d=[mirror].concat(shuffle(rest).slice(0,2));
+    while(d.length<3){ var r=1+rnd(32); if(r!==n && d.indexOf(r)<0) d.push(r); }
+    return d;
+  }
+  function numOpts(n, arch){
+    var nums = shuffle([n].concat(distract(n, arch)));
+    return {opts:nums.map(function(x){ return "#"+x; }), a:nums.indexOf(n)};
+  }
+  function qVisual(){
+    var arch = Math.random()<0.5 ? "upper":"lower";
+    var n = arch==="upper" ? 1+rnd(16) : 17+rnd(16);
+    var away = Math.random()<0.4;
+    var o = numOpts(n, arch), t=TEETH[n];
+    var ps = patientSide(!away, "left");
+    return {
+      q: cap(arch)+" impression. The handle points "+(away?"away from you (top of the picture)":"toward you (bottom of the picture)")+". Which number is the highlighted dent?",
+      svg: impSVG({arch:arch, rot:away, nums:false, hi:n, lm:false}),
+      opts:o.opts, a:o.a, key:"v"+arch+n+away,
+      why:"It is #"+n+", the "+t.name+". With the handle "+(away?"away from":"toward")+" you, your left is the patient's "+ps+"."
+    };
+  }
+  function qFinder(){
+    var arch = Math.random()<0.5 ? "upper":"lower";
+    var toward = Math.random()<0.6;
+    var side = Math.random()<0.5 ? "left":"right";
+    var p = 1+rnd(8), n = toothFor(arch, toward, side, p), o = numOpts(n, arch);
+    var ps = patientSide(toward, side);
+    var ord = ["","1st","2nd","3rd","4th","5th","6th","7th","8th"][p];
+    return {
+      q: cap(arch)+" impression, handle "+(toward?"toward":"away from")+" you. On YOUR "+side.toUpperCase()+" side, count from the midline. The "+ord+" tooth is which number?",
+      opts:o.opts, a:o.a, key:"f"+arch+toward+side+p,
+      why:"Your "+side+" is the patient's "+ps+", so you are in the "+arch+" "+ps+" quadrant. Position "+p+" is the "+TYPES[p]+", #"+n+"."
+    };
+  }
+  var STATIC = [
+    {q:"The center of the tray is filled with material showing ridged lines. Which arch?", o:["Upper impression","Lower impression"], a:0, why:"A filled center with ridges is the roof of the mouth, so it is an upper impression."},
+    {q:"There is a big open space in the middle of the horseshoe, where the tongue sits. Which arch?", o:["Upper impression","Lower impression"], a:1, why:"Lower impressions leave the middle open for the tongue."},
+    {q:"Which landmark is found at the back corners of an upper impression?", o:["Tuberosity","Retromolar pad","Incisive papilla","Tongue space"], a:0, why:"Tuberosities are the bulges behind the last upper molars."},
+    {q:"What is the soft pad captured behind the last molar on a lower impression?", o:["Tuberosity","Retromolar pad","Incisive papilla","Palate"], a:1, why:"The retromolar pad sits behind the last lower molars."},
+    {q:"What is the small bump just behind the upper front teeth called?", o:["Incisive papilla","Retromolar pad","Tuberosity","Frenum"], a:0, why:"The incisive papilla sits on the midline, behind the upper central incisors."},
+    {q:"Which tooth is usually the deep, pointed dent at the corner of the arch?", o:["Central incisor","Canine","First premolar","First molar"], a:1, why:"The canine sits at the corner where the front turns into the side, and it makes a deep, pointed dent."},
+    {q:"An impression is a negative of the teeth. What does the tip of a cusp look like in it?", o:["A raised bump","A low spot, like a pit","A flat smooth area","A tear in the material"], a:1, why:"Teeth stick out, so the impression has pits where cusp tips were."},
+    {q:"The handle points toward you. Which side of the patient is on your left?", o:["The patient's left","The patient's right"], a:1, why:"Handle toward you means you are facing the patient's front, so your left is the patient's right."},
+    {q:"The handle points away from you. Which side of the patient is on your left?", o:["The patient's left","The patient's right"], a:0, why:"Handle away from you means you are looking from behind, so your left is the patient's left."},
+    {q:"Which is a reason to show the impression to the dentist before sending it?", o:["A large bubble on an important tooth","The patient's name is on the bag","The material is firmly attached to the tray","All teeth are captured to the last molar"], a:0, why:"A big void near a tooth the lab needs may mean it has to be retaken. Let the clinical team decide."},
+    {q:"Which teeth have the narrowest central incisors, making the lower front teeth look small and even?", o:["Upper arch","Lower arch"], a:1, why:"Lower central incisors are the narrowest teeth, and the lower front teeth are all fairly small."}
+  ];
+  function qStatic(){
+    var s = STATIC[rnd(STATIC.length)];
+    return {q:s.q, opts:s.o, a:s.a, why:s.why, key:s.q};
+  }
+  function buildQuiz(){
+    var kinds = shuffle(["v","v","v","v","f","f","f","s","s","s"]), used={}, out=[];
+    kinds.forEach(function(k){
+      var q, tries=0;
+      do{
+        q = k==="v" ? qVisual() : k==="f" ? qFinder() : qStatic();
+        tries++;
+      }while(used[q.key] && tries<40);
+      used[q.key]=1; out.push(q);
+    });
+    return out;
+  }
+
+  var quizEl = document.getElementById("quiz");
+  var Q=[], qi=0, score=0, missed=[];
+  function startQuiz(){ Q=buildQuiz(); qi=0; score=0; missed=[]; renderQ(); }
+  function renderIntro(){
+    quizEl.innerHTML = '<h2>Ready to practice?</h2><p style="margin:0">Ten questions: find the highlighted tooth on an impression, count from the midline, and spot upper from lower. Each answer explains why.</p><button class="btn" id="go">Start quiz</button>';
+    document.getElementById("go").addEventListener("click", startQuiz);
+  }
+  function renderQ(){
+    var q=Q[qi];
+    var h='<div class="qmeta">Question '+(qi+1)+' of '+Q.length+'</div><div class="bar"><div style="width:'+(qi/Q.length*100)+'%"></div></div>'+
+          '<div class="qtext">'+q.q+'</div>'+(q.svg?'<div class="stage" style="margin-bottom:14px">'+q.svg+'</div>':'')+'<div class="opts">';
+    q.opts.forEach(function(o,i){ h+='<button class="opt" data-i="'+i+'">'+o+'</button>'; });
+    h+='</div><div id="fb" aria-live="polite"></div>';
+    quizEl.innerHTML=h;
+    quizEl.querySelectorAll(".opt").forEach(function(b){ b.addEventListener("click", function(){ answer(+b.dataset.i); }); });
+  }
+  function answer(i){
+    var q=Q[qi];
+    quizEl.querySelectorAll(".opt").forEach(function(b,idx){
+      b.disabled=true;
+      if(idx===q.a) b.classList.add("right"); else if(idx===i) b.classList.add("wrong");
+    });
+    var ok=i===q.a; if(ok) score++; else missed.push(q);
+    var last=qi===Q.length-1;
+    document.getElementById("fb").innerHTML='<div class="feedback"><strong>'+(ok?"Correct.":"Not quite.")+'</strong> '+q.why+'</div><button class="btn" id="next">'+(last?"See results":"Next question")+'</button>';
+    var nb=document.getElementById("next");
+    nb.addEventListener("click", function(){ qi++; if(qi>=Q.length) renderResults(); else renderQ(); });
+    nb.focus();
+  }
+  function renderResults(){
+    var msg = score===Q.length ? "Perfect round." : score>=8 ? "Strong work. Just a few to review." : score>=5 ? "Getting there. Review the misses and go again." : "Good start. Spend a few minutes in the Read it and Number finder tabs, then try again.";
+    var h='<div class="qmeta">Round complete</div><div class="score">'+score+' of '+Q.length+'</div><p style="margin:6px 0 0">'+msg+'</p>';
+    if(missed.length){
+      h+='<h3 style="margin-top:16px">To review</h3><ul class="missed">';
+      missed.forEach(function(q){ h+='<li>'+q.why+'</li>'; });
+      h+='</ul>';
+    }
+    h+='<button class="btn" id="again">New round</button><button class="btn ghost" id="review">Open Read it</button>';
+    quizEl.innerHTML=h;
+    document.getElementById("again").addEventListener("click", startQuiz);
+    document.getElementById("review").addEventListener("click", function(){ show("read"); window.scrollTo(0,0); });
+  }
+  renderIntro();
+
+  /* ---------- Tabs ---------- */
+  var names=["read","find","check","quiz"];
+  function show(name){
+    names.forEach(function(n){
+      var on=n===name;
+      document.getElementById("panel-"+n).hidden=!on;
+      document.getElementById("tab-"+n).setAttribute("aria-selected", on?"true":"false");
+    });
+  }
+  names.forEach(function(n){
+    document.getElementById("tab-"+n).addEventListener("click", function(){ show(n); window.scrollTo(0,0); });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dental basics for the front desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#F2F7F8; --surface:#FFFFFF; --ink:#12303F; --muted:#54707F; --line:#D3E0E5;
+  --accent:#1B7F7C; --accent-ink:#FFFFFF; --rose:#C4445A; --good:#1E8A58;
+  --good-bg:#E3F4EB; --bad-bg:#FBE6EA;
+  --molar:#1B7F7C; --molar-ink:#FFFFFF;
+  --premolar:#7CC4BF; --premolar-ink:#0E2A33;
+  --canine:#E8AE3F; --canine-ink:#3A2600;
+  --incisor:#FFFFFF; --incisor-ink:#12303F; --incisor-line:#8FAAB6;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1C24; --surface:#152A35; --ink:#E6F0F3; --muted:#92AEBB; --line:#27424E;
+    --accent:#3FB0AA; --accent-ink:#06211F; --rose:#F07A8E; --good:#5CCB98;
+    --good-bg:#153A2B; --bad-bg:#3E1E27;
+    --molar:#2E9C97; --molar-ink:#FFFFFF;
+    --premolar:#4A8C88; --premolar-ink:#FFFFFF;
+    --canine:#D99A2B; --canine-ink:#2A1A00;
+    --incisor:#DCE9ED; --incisor-ink:#0E2A33; --incisor-line:#6C8A97;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1C24; --surface:#152A35; --ink:#E6F0F3; --muted:#92AEBB; --line:#27424E;
+  --accent:#3FB0AA; --accent-ink:#06211F; --rose:#F07A8E; --good:#5CCB98;
+  --good-bg:#153A2B; --bad-bg:#3E1E27;
+  --molar:#2E9C97; --molar-ink:#FFFFFF;
+  --premolar:#4A8C88; --premolar-ink:#FFFFFF;
+  --canine:#D99A2B; --canine-ink:#2A1A00;
+  --incisor:#DCE9ED; --incisor-ink:#0E2A33; --incisor-line:#6C8A97;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:'Figtree',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  font-size:16px; line-height:1.5;
+}
+h1,h2,h3{font-family:'Bricolage Grotesque','Figtree',system-ui,sans-serif; line-height:1.15; margin:0}
+header{max-width:640px; margin:0 auto; padding:20px 16px 8px}
+header h1{font-size:1.75rem; font-weight:700}
+header p{margin:6px 0 0; color:var(--muted)}
+.tabs{
+  position:sticky; top:env(safe-area-inset-top,0px); z-index:5;
+  background:var(--bg); border-bottom:1px solid var(--line);
+}
+.tabs-inner{max-width:640px; margin:0 auto; padding:8px 16px; display:flex; gap:8px}
+.tab{
+  flex:1; padding:10px 8px; border-radius:999px; border:1px solid var(--line);
+  background:var(--surface); color:var(--ink); font:inherit; font-weight:600; cursor:pointer;
+}
+.tab[aria-selected="true"]{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+main{max-width:640px; margin:0 auto; padding:16px 16px 40px}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:16px}
+.card h2{font-size:1.25rem; margin-bottom:10px}
+.card h3{font-size:1.05rem; margin-bottom:6px}
+.hint{color:var(--muted); font-size:.95rem; margin:0 0 8px}
+svg{display:block; width:100%; height:auto}
+.tooth{cursor:pointer; outline:none}
+.tooth circle{stroke:transparent; stroke-width:3}
+.tooth text{text-anchor:middle; font-weight:600; font-size:11px; pointer-events:none; font-family:'Figtree',system-ui,sans-serif}
+.t-molar circle{fill:var(--molar)} .t-molar text{fill:var(--molar-ink)}
+.t-premolar circle{fill:var(--premolar)} .t-premolar text{fill:var(--premolar-ink)}
+.t-canine circle{fill:var(--canine)} .t-canine text{fill:var(--canine-ink)}
+.t-incisor circle{fill:var(--incisor); stroke:var(--incisor-line); stroke-width:1.5} .t-incisor text{fill:var(--incisor-ink)}
+.tooth.sel circle{stroke:var(--ink); stroke-width:3.5}
+.tooth:focus-visible circle{stroke:var(--rose); stroke-width:3.5}
+.svg-label{fill:var(--muted); font-size:10px; font-family:'Figtree',system-ui,sans-serif}
+.midline{stroke:var(--line); stroke-width:1.5; stroke-dasharray:4 4}
+.legend{display:flex; flex-wrap:wrap; gap:8px 14px; margin-top:8px; font-size:.9rem; color:var(--muted)}
+.legend span{display:inline-flex; align-items:center; gap:6px}
+.sw{width:14px; height:14px; border-radius:50%; display:inline-block; border:1px solid var(--incisor-line)}
+.detail{display:flex; gap:14px; align-items:flex-start}
+.detail .num{
+  min-width:64px; height:64px; border-radius:16px; background:var(--accent); color:var(--accent-ink);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Bricolage Grotesque','Figtree',sans-serif; font-weight:700; font-size:1.6rem;
+}
+.detail p{margin:4px 0 0}
+.chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px}
+.chip{font-size:.85rem; padding:3px 10px; border-radius:999px; background:var(--bg); border:1px solid var(--line)}
+ul.tight{margin:0; padding-left:1.2rem}
+ul.tight li{margin:6px 0}
+table{width:100%; border-collapse:collapse; font-size:.95rem}
+td,th{text-align:left; padding:8px 6px; border-bottom:1px solid var(--line); vertical-align:top}
+th{font-weight:600; color:var(--muted)}
+input[type="search"]{
+  width:100%; padding:12px 14px; font:inherit; color:var(--ink); background:var(--surface);
+  border:1px solid var(--line); border-radius:12px; margin-bottom:16px;
+}
+dl{margin:0}
+dt{font-weight:600; margin-top:10px}
+dd{margin:2px 0 0; color:var(--muted)}
+.qmeta{color:var(--muted); font-size:.9rem; margin-bottom:6px}
+.qtext{font-family:'Bricolage Grotesque','Figtree',sans-serif; font-size:1.3rem; font-weight:600; margin-bottom:14px}
+.opts{display:grid; gap:10px}
+.opt{
+  text-align:left; padding:14px; border-radius:12px; border:1.5px solid var(--line);
+  background:var(--surface); color:var(--ink); font:inherit; cursor:pointer; min-height:48px;
+}
+.opt:disabled{cursor:default}
+.opt.right{background:var(--good-bg); border-color:var(--good)}
+.opt.wrong{background:var(--bad-bg); border-color:var(--rose)}
+.feedback{margin-top:14px; padding:12px; border-radius:12px; background:var(--bg); border:1px solid var(--line)}
+.btn{
+  margin-top:14px; padding:13px 20px; border-radius:999px; border:0; background:var(--accent);
+  color:var(--accent-ink); font:inherit; font-weight:600; cursor:pointer;
+}
+.btn.ghost{background:transparent; color:var(--ink); border:1px solid var(--line); margin-left:8px}
+.bar{height:6px; background:var(--line); border-radius:99px; overflow:hidden; margin-bottom:14px}
+.bar > div{height:100%; background:var(--accent); transition:width .25s}
+.score{font-family:'Bricolage Grotesque','Figtree',sans-serif; font-size:2.6rem; font-weight:700}
+.missed{margin-top:12px; padding-left:1.1rem}
+.missed li{margin:8px 0}
+[hidden]{display:none !important}
+button:focus-visible,input:focus-visible{outline:3px solid var(--rose); outline-offset:2px}
+@media (prefers-reduced-motion: reduce){ .bar > div{transition:none} }
+</style>
+</head>
+<body>
+<header>
+  <h1>Dental basics for the front desk</h1>
+  <p>Tooth numbers, everyday terms, and a 10-question quiz.</p>
+</header>
+
+<div class="tabs">
+  <div class="tabs-inner" role="tablist" aria-label="Sections">
+    <button class="tab" role="tab" id="tab-chart" aria-selected="true" aria-controls="panel-chart">Chart</button>
+    <button class="tab" role="tab" id="tab-terms" aria-selected="false" aria-controls="panel-terms">Terms</button>
+    <button class="tab" role="tab" id="tab-quiz" aria-selected="false" aria-controls="panel-quiz">Quiz</button>
+  </div>
+</div>
+
+<main>
+  <!-- CHART -->
+  <section id="panel-chart" role="tabpanel" aria-labelledby="tab-chart">
+    <div class="card">
+      <h2>Universal numbering, 1 to 32</h2>
+      <p class="hint">Tap any tooth. The chart is drawn as if the patient is facing you, so the patient's right is on your left.</p>
+      <svg id="arch" viewBox="0 0 360 440" role="group" aria-label="Tooth chart, teeth 1 to 32"></svg>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--molar)"></i>Molars</span>
+        <span><i class="sw" style="background:var(--premolar)"></i>Premolars</span>
+        <span><i class="sw" style="background:var(--canine)"></i>Canines</span>
+        <span><i class="sw" style="background:var(--incisor)"></i>Incisors</span>
+      </div>
+    </div>
+
+    <div class="card" id="detail" aria-live="polite">
+      <p class="hint" style="margin:0">Tap a tooth on the chart to see its name here.</p>
+    </div>
+
+    <div class="card">
+      <h2>Four rules that cover most of it</h2>
+      <ul class="tight">
+        <li>Teeth 1 to 16 are upper. Teeth 17 to 32 are lower.</li>
+        <li>Count starts at the patient's upper right back tooth (1), crosses to the upper left (16), drops to the lower left (17), and crosses to the lower right (32).</li>
+        <li>The midline sits between 8 and 9 on top, and between 24 and 25 on the bottom.</li>
+        <li>The four wisdom teeth are the corners: 1, 16, 17, and 32.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>What patients say, and what it means</h2>
+      <table>
+        <tr><th>Patient says</th><th>Chart numbers</th></tr>
+        <tr><td>Wisdom tooth</td><td>1, 16, 17, 32</td></tr>
+        <tr><td>Eye tooth (canine)</td><td>6, 11, 22, 27</td></tr>
+        <tr><td>Front teeth, canine to canine</td><td>6 to 11 top, 22 to 27 bottom</td></tr>
+        <tr><td>Back teeth (molars)</td><td>1 to 3, 14 to 16, 17 to 19, 30 to 32</td></tr>
+        <tr><td>Upper right side</td><td>1 to 8</td></tr>
+        <tr><td>Upper left side</td><td>9 to 16</td></tr>
+        <tr><td>Lower left side</td><td>17 to 24</td></tr>
+        <tr><td>Lower right side</td><td>25 to 32</td></tr>
+      </table>
+      <p class="hint" style="margin-top:10px">Left and right always mean the patient's left and right.</p>
+    </div>
+
+    <div class="card">
+      <h2>Baby teeth use letters</h2>
+      <p style="margin:0">Primary teeth are A to T. A to J run across the top from the patient's right to left. K to T run across the bottom from the patient's left to right. Example: A is the upper right second primary molar, and T is the lower right second primary molar.</p>
+    </div>
+  </section>
+
+  <!-- TERMS -->
+  <section id="panel-terms" role="tabpanel" aria-labelledby="tab-terms" hidden>
+    <input type="search" id="filter" placeholder="Search a term, like BWX or crown" aria-label="Search terms">
+    <div id="terms"></div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="panel-quiz" role="tabpanel" aria-labelledby="tab-quiz" hidden>
+    <div class="card" id="quiz"></div>
+  </section>
+</main>
+
+<script>
+(function(){
+  /* ---------- Tooth data ---------- */
+  var TYPES = ["", "central incisor","lateral incisor","canine","first premolar","second premolar","first molar","second molar","third molar"];
+  var CLS = ["", "incisor","incisor","canine","premolar","premolar","molar","molar","molar"];
+  var RAD = {molar:15, premolar:13, canine:13, incisor:12};
+
+  function info(n){
+    var quad, p;
+    if(n<=8){ quad="upper right"; p=9-n; }
+    else if(n<=16){ quad="upper left"; p=n-8; }
+    else if(n<=24){ quad="lower left"; p=25-n; }
+    else { quad="lower right"; p=n-24; }
+    var type = TYPES[p];
+    var upper = n<=16;
+    var side = quad.split(" ")[1];
+    var nick = "";
+    if(p===3) nick = upper ? "Cuspid. Upper canines are also called eye teeth." : "Cuspid";
+    if(p===4 || p===5) nick = "Bicuspid";
+    if(p===8) nick = "Wisdom tooth";
+    return {
+      n:n, quad:quad, p:p, type:type, cls:CLS[p], upper:upper,
+      name: quad + " " + type,
+      formal: (upper ? "maxillary " : "mandibular ") + side + " " + type,
+      nick: nick,
+      anterior: p<=3,
+      qcode: (upper?"U":"L") + (side==="right"?"R":"L")
+    };
+  }
+  var TEETH = [];
+  for(var i=1;i<=32;i++) TEETH[i]=info(i);
+  function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+
+  /* ---------- Draw arch ---------- */
+  function pos(n){
+    if(n<=16){
+      var t=Math.PI*(n-1+0.5)/16;
+      return {x:180-145*Math.cos(t), y:205-170*Math.sin(t)};
+    }
+    var j=32-n, t2=Math.PI*(j+0.5)/16;
+    return {x:180-145*Math.cos(t2), y:235+170*Math.sin(t2)};
+  }
+  var svg = document.getElementById("arch");
+  var html = '<line class="midline" x1="180" y1="18" x2="180" y2="422"/>';
+  html += '<text class="svg-label" x="180" y="140" text-anchor="middle">Upper teeth</text>';
+  html += '<text class="svg-label" x="180" y="310" text-anchor="middle">Lower teeth</text>';
+  html += '<text class="svg-label" x="6" y="224">Patient\'s right</text>';
+  html += '<text class="svg-label" x="354" y="224" text-anchor="end">Patient\'s left</text>';
+  for(var n=1;n<=32;n++){
+    var t=TEETH[n], p=pos(n);
+    html += '<g class="tooth t-'+t.cls+'" data-n="'+n+'" tabindex="0" role="button" aria-label="Tooth '+n+', '+t.name+'">'+
+            '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+RAD[t.cls]+'"/>'+
+            '<text x="'+p.x.toFixed(1)+'" y="'+p.y.toFixed(1)+'" dy=".35em">'+n+'</text></g>';
+  }
+  svg.innerHTML = html;
+
+  var detail = document.getElementById("detail");
+  function select(n){
+    var prev = svg.querySelector(".tooth.sel");
+    if(prev) prev.classList.remove("sel");
+    var g = svg.querySelector('.tooth[data-n="'+n+'"]');
+    g.classList.add("sel");
+    var t = TEETH[n];
+    var surface = t.anterior ? "Incisal (biting edge)" : "Occlusal (chewing surface)";
+    var out = '<div class="detail"><div class="num">#'+n+'</div><div>'+
+      '<h3>'+cap(t.name)+'</h3>'+
+      '<p class="hint" style="margin:4px 0 0">Formal name: '+t.formal+'</p>'+
+      (t.nick ? '<p>Also called: '+t.nick+'</p>' : '')+
+      '<div class="chips"><span class="chip">'+(t.anterior?"Front tooth (anterior)":"Back tooth (posterior)")+'</span>'+
+      '<span class="chip">Quadrant '+t.qcode+'</span>'+
+      '<span class="chip">'+surface+'</span></div></div></div>';
+    detail.innerHTML = out;
+  }
+  svg.addEventListener("click", function(e){
+    var g = e.target.closest(".tooth"); if(g) select(+g.dataset.n);
+  });
+  svg.addEventListener("keydown", function(e){
+    if(e.key==="Enter" || e.key===" "){
+      var g = e.target.closest(".tooth");
+      if(g){ e.preventDefault(); select(+g.dataset.n); }
+    }
+  });
+
+  /* ---------- Terms ---------- */
+  var GROUPS = [
+    {g:"Surfaces and directions", items:[
+      ["Mesial (M)","Side of a tooth that faces the midline, toward the front of the mouth"],
+      ["Distal (D)","Side of a tooth that faces away from the midline, toward the back"],
+      ["Occlusal (O)","Chewing surface of a back tooth"],
+      ["Incisal (I)","Biting edge of a front tooth"],
+      ["Facial (F or B)","Outer side of a tooth, toward the lips or cheek. Called labial on front teeth and buccal on back teeth"],
+      ["Lingual (L)","Side of a tooth that faces the tongue"],
+      ["Palatal","Inner side of an upper tooth, facing the roof of the mouth"],
+      ["MOD","A filling that covers the mesial, occlusal, and distal surfaces of one tooth"],
+      ["Anterior","The front teeth: incisors and canines"],
+      ["Posterior","The back teeth: premolars and molars"],
+      ["Maxillary","Upper jaw"],
+      ["Mandibular","Lower jaw"],
+      ["Quadrant","One of four quarters of the mouth: UR, UL, LL, LR"],
+      ["Arch","One full row of teeth, upper or lower"]
+    ]},
+    {g:"Visits and exams", items:[
+      ["Prophy (prophylaxis)","Routine cleaning for a patient with healthy gums"],
+      ["Perio maintenance","Ongoing cleaning schedule for a patient treated for gum disease"],
+      ["SRP (scaling and root planing)","Deep cleaning below the gumline, often done one quadrant at a time"],
+      ["Periodic exam","Routine check-up at a recall visit"],
+      ["Comprehensive exam","Full evaluation, usually for a new patient"],
+      ["Limited exam","Focused exam for one problem, like a toothache visit"],
+      ["Recall","A regularly scheduled hygiene visit"],
+      ["Chief complaint (CC)","The reason the patient came in, in their own words"],
+      ["Treatment plan (Tx plan)","The list of recommended treatments, with costs"],
+      ["Pre-authorization","Asking insurance ahead of time what it will pay for a treatment"],
+      ["Post-op","After treatment, as in post-op instructions or a post-op check"]
+    ]},
+    {g:"Imaging", items:[
+      ["BWX (bitewings)","X-rays of the back teeth biting together, used to find decay between teeth"],
+      ["PA (periapical)","X-ray of one or two teeth showing the whole tooth and root tip"],
+      ["FMX (full mouth series)","A complete set of X-rays of all teeth, often about 18 images"],
+      ["Pano (panoramic)","One wide X-ray showing both jaws and all teeth"],
+      ["CBCT","3D X-ray scan, often used to plan implants and surgery"],
+      ["IOS (intraoral scan)","A digital scan of the teeth that replaces a goopy impression"]
+    ]},
+    {g:"Treatments", items:[
+      ["Filling (restoration)","Repairs a tooth with a cavity. Composite is tooth-colored and amalgam is silver"],
+      ["Crown (cap)","A cover that fits over the whole tooth"],
+      ["Bridge","Replaces a missing tooth by attaching a false tooth to crowns on the neighbors"],
+      ["Pontic","The false tooth in a bridge"],
+      ["Abutment","A tooth or implant that supports a bridge or crown"],
+      ["Implant","A titanium post placed in the jaw to replace a tooth root"],
+      ["Veneer","A thin shell bonded to the front of a tooth"],
+      ["RCT (root canal therapy)","Removes an infected or damaged nerve from inside a tooth"],
+      ["Extraction (ext)","Removing a tooth"],
+      ["Denture","Removable replacement teeth. Can be full or partial"],
+      ["Night guard (occlusal guard)","A custom appliance worn to protect teeth from grinding"],
+      ["Sealant","A thin coating on chewing surfaces to help prevent cavities"],
+      ["Fluoride","A treatment that strengthens enamel"],
+      ["Bonding","Tooth-colored resin used to fix chips or gaps"]
+    ]},
+    {g:"Conditions", items:[
+      ["Caries","Tooth decay, or cavities"],
+      ["Gingivitis","Inflamed gums. It is reversible with good cleaning"],
+      ["Periodontitis","Gum disease that has started to damage the bone around teeth"],
+      ["Abscess","A pocket of infection, often with pain and swelling. Treat as urgent"],
+      ["Impacted","A tooth that cannot fully come in, common with wisdom teeth"],
+      ["Bruxism","Grinding or clenching the teeth"],
+      ["TMJ or TMD","Problems with the jaw joint"],
+      ["Recession","Gums pulling back and exposing the tooth root"],
+      ["Edentulous","Missing all teeth"]
+    ]},
+    {g:"Insurance and codes", items:[
+      ["CDT code","The standard procedure code used on claims. It starts with the letter D"],
+      ["D0120","Periodic oral evaluation"],
+      ["D0140","Limited oral evaluation, problem focused"],
+      ["D0150","Comprehensive oral evaluation"],
+      ["D0210","Full mouth X-rays, complete series"],
+      ["D0274","Four bitewing X-rays"],
+      ["D1110","Adult prophylaxis, a routine cleaning"],
+      ["D4341","Scaling and root planing, four or more teeth in a quadrant"],
+      ["D2740","Crown, porcelain or ceramic"],
+      ["D3330","Root canal therapy on a molar"],
+      ["D7140","Extraction of an erupted tooth"],
+      ["D9944","Hard night guard, full arch"],
+      ["Deductible","What the patient pays first each year before insurance starts paying"],
+      ["Annual maximum","The most the insurance plan will pay in one benefit year"],
+      ["Coinsurance","The percentage of a treatment cost the patient pays after the deductible"],
+      ["Frequency limit","How often insurance covers something, like X-rays or cleanings"],
+      ["Waiting period","Time after enrollment before certain treatments are covered"],
+      ["Downgrade","Insurance pays for a cheaper material and the patient covers the difference"]
+    ]}
+  ];
+  var TERMS = [];
+  GROUPS.forEach(function(gr){ gr.items.forEach(function(it){ TERMS.push({t:it[0], d:it[1], g:gr.g}); }); });
+
+  var termsEl = document.getElementById("terms");
+  function renderTerms(q){
+    q = (q||"").toLowerCase().trim();
+    var out = "";
+    GROUPS.forEach(function(gr){
+      var rows = gr.items.filter(function(it){
+        return !q || it[0].toLowerCase().indexOf(q)>-1 || it[1].toLowerCase().indexOf(q)>-1;
+      });
+      if(!rows.length) return;
+      out += '<div class="card"><h2>'+gr.g+'</h2>';
+      if(gr.g==="Insurance and codes") out += '<p class="hint">Check codes against your office\'s current CDT code set before using them on claims.</p>';
+      out += '<dl>';
+      rows.forEach(function(it){ out += '<dt>'+it[0]+'</dt><dd>'+it[1]+'</dd>'; });
+      out += '</dl></div>';
+    });
+    termsEl.innerHTML = out || '<div class="card"><p style="margin:0">No terms match that search.</p></div>';
+  }
+  renderTerms("");
+  document.getElementById("filter").addEventListener("input", function(e){ renderTerms(e.target.value); });
+
+  /* ---------- Quiz ---------- */
+  function rnd(n){ return Math.floor(Math.random()*n); }
+  function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=rnd(i+1); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+  function uniq(a){ return a.filter(function(v,i){ return a.indexOf(v)===i; }); }
+
+  function qNum2Name(n){
+    var c = TEETH[n];
+    var sameType = [], others = [];
+    for(var i=1;i<=32;i++){ if(i===n) continue; (TEETH[i].p===c.p ? sameType : others).push(TEETH[i].name); }
+    var d = Math.random()<0.5 ? shuffle(sameType).slice(0,3) : shuffle(sameType.concat(others)).slice(0,3);
+    var opts = shuffle([c.name].concat(d)).map(cap);
+    return {q:"Which tooth is #"+n+"?", opts:opts, a:opts.indexOf(cap(c.name)), why:"#"+n+" is the "+c.name+"."};
+  }
+  function qName2Num(n){
+    var c = TEETH[n], cand = [];
+    for(var i=1;i<=32;i++){ if(i!==n && TEETH[i].p===c.p) cand.push(i); }
+    if(Math.random()<0.4){ cand = cand.concat([n-1,n+1].filter(function(x){return x>=1&&x<=32;})); }
+    cand = uniq(cand);
+    while(cand.length<3){ var r=1+rnd(32); if(r!==n && cand.indexOf(r)<0) cand.push(r); }
+    var d = shuffle(cand).slice(0,3);
+    var nums = shuffle([n].concat(d));
+    var opts = nums.map(function(x){ return "#"+x; });
+    return {q:"Which number is the "+c.name+"?", opts:opts, a:nums.indexOf(n), why:"The "+c.name+" is #"+n+"."};
+  }
+  function qTerm(){
+    var t = TERMS[rnd(TERMS.length)];
+    var same = TERMS.filter(function(x){ return x.g===t.g && x.t!==t.t; });
+    var rest = TERMS.filter(function(x){ return x.g!==t.g; });
+    var pool = shuffle(same).slice(0,3);
+    if(pool.length<3) pool = pool.concat(shuffle(rest).slice(0,3-pool.length));
+    var why = t.t+": "+t.d+".";
+    if(Math.random()<0.5){
+      var opts = shuffle([t.d].concat(pool.map(function(x){return x.d;})));
+      return {q:"What does \""+t.t+"\" mean?", opts:opts, a:opts.indexOf(t.d), why:why, key:t.t};
+    }
+    var o2 = shuffle([t.t].concat(pool.map(function(x){return x.t;})));
+    return {q:"Which term means: "+t.d+"?", opts:o2, a:o2.indexOf(t.t), why:why, key:t.t};
+  }
+  var SCEN = [
+    {q:"A patient says their eye tooth on the upper left hurts. Which tooth number?", o:["#6","#11","#22","#27"], a:1, why:"Eye teeth are the upper canines. The upper left canine is #11."},
+    {q:"A patient's lower right wisdom tooth is bothering them. Which number?", o:["#1","#16","#17","#32"], a:3, why:"The lower right third molar is #32."},
+    {q:"Which two numbers are the upper central incisors, the two big front teeth?", o:["#7 and #10","#8 and #9","#6 and #11","#24 and #25"], a:1, why:"#8 and #9 sit on either side of the upper midline."},
+    {q:"The doctor's note says tooth #24 needs a crown. Where is that tooth?", o:["Upper left canine","Lower left central incisor","Lower right central incisor","Upper right lateral incisor"], a:1, why:"#24 is the lower left central incisor, right next to the lower midline."},
+    {q:"Which numbers make up the upper right quadrant?", o:["1 to 8","9 to 16","17 to 24","25 to 32"], a:0, why:"Upper right is 1 to 8. Upper left is 9 to 16."},
+    {q:"Which numbers are the lower front teeth from canine to canine?", o:["1 to 6","9 to 14","22 to 27","28 to 32"], a:2, why:"The lower canines are #22 and #27, so the lower front six are #22 to #27."},
+    {q:"Baby teeth use letters. Which letter is the upper right second primary molar?", o:["A","J","K","T"], a:0, why:"Primary teeth start with A at the upper right back and end with T at the lower right back."},
+    {q:"A chart note reads \"MOD comp #30\". What does MOD mean?", o:["Made on demand","Mesial, occlusal, distal surfaces","Missing or damaged","Mandibular open dental"], a:1, why:"MOD is a three-surface filling: mesial, occlusal, distal. Comp means composite, a tooth-colored filling."},
+    {q:"A patient is scheduled for \"SRP UR\". What is that visit?", o:["A whitening treatment","Deep cleaning of the upper right quadrant","A denture repair","A root canal on the upper right"], a:1, why:"SRP is scaling and root planing, a deep cleaning. UR means upper right quadrant."}
+  ];
+  function qScen(){
+    var s = SCEN[rnd(SCEN.length)];
+    var opts = s.o.slice(), correct = opts[s.a];
+    return {q:s.q, opts:opts, a:s.a, why:s.why, key:s.q, fixed:true};
+  }
+  function buildQuiz(total){
+    var kinds = ["n2n","n2n","n2n","num","num","term","term","term","scen","scen"];
+    kinds = shuffle(kinds).slice(0,total);
+    var used = {}, out = [], guard = 0;
+    kinds.forEach(function(k){
+      var q, tries=0;
+      do{
+        if(k==="n2n") q = qNum2Name(1+rnd(32)), q.key = q.q;
+        else if(k==="num") q = qName2Num(1+rnd(32)), q.key = q.q;
+        else if(k==="term") q = qTerm();
+        else q = qScen();
+        tries++;
+      }while(used[q.key] && tries<30);
+      used[q.key]=1; out.push(q);
+    });
+    return out;
+  }
+
+  var quizEl = document.getElementById("quiz");
+  var Q=[], qi=0, score=0, missed=[];
+  function startQuiz(){
+    Q = buildQuiz(10); qi=0; score=0; missed=[];
+    renderQ();
+  }
+  function renderIntro(){
+    quizEl.innerHTML = '<h2>Ready to practice?</h2><p style="margin:0">Ten questions mixing tooth numbers, everyday terms, and real front desk situations. Each answer shows why, so you learn as you go.</p><button class="btn" id="go">Start quiz</button>';
+    document.getElementById("go").addEventListener("click", startQuiz);
+  }
+  function renderQ(){
+    var q = Q[qi];
+    var h = '<div class="qmeta">Question '+(qi+1)+' of '+Q.length+'</div>'+
+            '<div class="bar"><div style="width:'+(qi/Q.length*100)+'%"></div></div>'+
+            '<div class="qtext">'+q.q+'</div><div class="opts">';
+    q.opts.forEach(function(o,i){ h += '<button class="opt" data-i="'+i+'">'+o+'</button>'; });
+    h += '</div><div id="fb" aria-live="polite"></div>';
+    quizEl.innerHTML = h;
+    quizEl.querySelectorAll(".opt").forEach(function(b){
+      b.addEventListener("click", function(){ answer(+b.dataset.i); });
+    });
+  }
+  function answer(i){
+    var q = Q[qi];
+    var btns = quizEl.querySelectorAll(".opt");
+    btns.forEach(function(b,idx){
+      b.disabled = true;
+      if(idx===q.a) b.classList.add("right");
+      else if(idx===i) b.classList.add("wrong");
+    });
+    var ok = i===q.a;
+    if(ok) score++; else missed.push(q);
+    var last = qi===Q.length-1;
+    document.getElementById("fb").innerHTML =
+      '<div class="feedback"><strong>'+(ok?"Correct.":"Not quite.")+'</strong> '+q.why+'</div>'+
+      '<button class="btn" id="next">'+(last?"See results":"Next question")+'</button>';
+    var nb = document.getElementById("next");
+    nb.addEventListener("click", function(){ qi++; if(qi>=Q.length) renderResults(); else renderQ(); });
+    nb.focus();
+  }
+  function renderResults(){
+    var msg = score===Q.length ? "Perfect round." : score>=8 ? "Strong work. Just a few to review." : score>=5 ? "Getting there. Review the misses below and go again." : "Good start. Spend a few minutes on the Chart tab, then try again.";
+    var h = '<div class="qmeta">Round complete</div><div class="score">'+score+' of '+Q.length+'</div><p style="margin:6px 0 0">'+msg+'</p>';
+    if(missed.length){
+      h += '<h3 style="margin-top:16px">To review</h3><ul class="missed">';
+      missed.forEach(function(q){ h += '<li>'+q.why+'</li>'; });
+      h += '</ul>';
+    }
+    h += '<button class="btn" id="again">New round</button><button class="btn ghost" id="review">Open chart</button>';
+    quizEl.innerHTML = h;
+    document.getElementById("again").addEventListener("click", startQuiz);
+    document.getElementById("review").addEventListener("click", function(){ show("chart"); window.scrollTo(0,0); });
+  }
+  renderIntro();
+
+  /* ---------- Tabs ---------- */
+  var names = ["chart","terms","quiz"];
+  function show(name){
+    names.forEach(function(n){
+      var on = n===name;
+      document.getElementById("panel-"+n).hidden = !on;
+      document.getElementById("tab-"+n).setAttribute("aria-selected", on ? "true" : "false");
+    });
+  }
+  names.forEach(function(n){
+    document.getElementById("tab-"+n).addEventListener("click", function(){ show(n); window.scrollTo(0,0); });
+  });
+})();
+</script>
+</body>
+</html>
